@@ -1,0 +1,67 @@
+﻿@page "/employee/add"
+@page "/employee/edit/{userId:int}"
+@using Services
+@inject IEmployeeService employeeService
+<title>@Title</title>
+
+<h3>@Title</h3>
+<a href="/employees" class="btn btn-outline-dark">Show All</a>
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@employee" OnValidSubmit="Save">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label for="Name">Name</label>
+                <InputText class="form-control" @bind-Value="employee.Name" />
+                <ValidationMessage For="@(()=>employee.Name)" />
+            </div>
+
+            <div class="form-group">
+                <label for="Email">Email</label>
+                <InputText class="form-control" @bind-Value="employee.Email" />
+                <ValidationMessage For="@(()=>employee.Email)" />
+            </div>
+
+            <div class="my-2">
+                @message
+            </div>
+
+            <div class="my-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int UserId { get; set; }
+    private string message = string.Empty;
+    Models.Employee employee = new();
+    private string Title = "Add Employee";
+
+    private void Save()
+    {
+        message = "wait...";
+        if (employeeService.AddUpdate(employee))
+        {
+            message = "Sucessfully added";
+            employee = new();
+        }
+        else
+        {
+            message = "Could not saved";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (UserId > 0)
+        {
+            Title = "Upage Employee";
+            employee = employeeService.FindById(UserId);
+        }
+        base.OnInitialized();
+    }
+}
